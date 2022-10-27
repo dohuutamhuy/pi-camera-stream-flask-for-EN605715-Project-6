@@ -2,39 +2,36 @@
 #Date: 27.09.20
 #Desc: This scrtipt script..
 
-import cv2 as cv
-from imutils.video.pivideostream import PiVideoStream
-import imutils
 import time
+import io
+from libcamera import Transform
+from picamera2 import Picamera2
 from datetime import datetime
-import numpy as np
+
 
 class VideoCamera(object):
     def __init__(self, flip = False, file_type  = ".jpg", photo_string= "stream_photo"):
-        # self.vs = PiVideoStream(resolution=(1920, 1080), framerate=30).start()
-        self.vs = PiVideoStream().start()
-        self.flip = flip # Flip frame vertically
+        self.vs = Picamera2()
+        self.capture_config = self.vs.create_still_configuration()
+        self.vs.configure(self.vs.create_preview_configuration({"size": (800, 600)}, transform=Transform(hflip=flip, vflip=True)))
+        self.vs.start()
         self.file_type = file_type # image type i.e. .jpg
         self.photo_string = photo_string # Name to save the photo
         time.sleep(2.0)
 
     def __del__(self):
-        self.vs.stop()
-
-    def flip_if_needed(self, frame):
-        if self.flip:
-            return np.flip(frame, 0)
-        return frame
+        print("STOP")
 
     def get_frame(self):
-        frame = self.flip_if_needed(self.vs.read())
-        ret, jpeg = cv.imencode(self.file_type, frame)
+        jpeg = io.BytesIO()
+        try:
+                self.vs.capture_file(jpeg, format='jpeg')
+        except RuntimeError:
+                jpeg = self.previous_frame
         self.previous_frame = jpeg
-        return jpeg.tobytes()
+        return jpeg.getbuffer()
 
     # Take a photo, called by camera button
     def take_picture(self):
-        frame = self.flip_if_needed(self.vs.read())
-        ret, image = cv.imencode(self.file_type, frame)
         today_date = datetime.now().strftime("%m%d%Y-%H%M%S") # get current time
-        cv.imwrite(str(self.photo_string + "_" + today_date + self.file_type), frame)
+        print(self.vs.capture_file(today_date+self.file_type))
