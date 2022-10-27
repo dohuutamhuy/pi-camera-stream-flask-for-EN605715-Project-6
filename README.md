@@ -47,3 +47,7 @@ Add the following line:
 ## How to flip the camera
 
 There's a vflip and hfip in the `camera.py`, or if you only care about upside down, you can adjust the `flip` boolean flag when init `VideoCamera` object 
+
+## 3D print part
+
+`camera holder.stl` is the 3D model of the camera holder mount
