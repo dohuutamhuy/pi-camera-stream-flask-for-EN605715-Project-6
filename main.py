@@ -1,5 +1,5 @@
-#Modified by smartbuilds.io
-#Date: 27.09.20
+#Modified by Huy Do
+#Date: 27.10.22
 #Desc: This web application serves a motion JPEG stream
 # main.py
 # import the necessary packages
