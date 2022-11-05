@@ -13,7 +13,8 @@ class VideoCamera(object):
     def __init__(self, flip = False, file_type  = ".jpg", photo_string= "stream_photo"):
         self.vs = Picamera2()
         self.capture_config = self.vs.create_still_configuration()
-        self.vs.configure(self.vs.create_preview_configuration({"size": (800, 600)}, transform=Transform(hflip=flip, vflip=True)))
+        controls = {"AeExposureMode": 1}
+        self.vs.configure(self.vs.create_preview_configuration({"size": (800, 600)}, controls=controls, transform=Transform(hflip=flip, vflip=True)))
         self.vs.start()
         self.file_type = file_type # image type i.e. .jpg
         self.photo_string = photo_string # Name to save the photo

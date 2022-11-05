@@ -126,7 +126,7 @@ body {
 
 <title>Huy Do - Project 6</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='font-awesome.min.css') }}">
 
 <body>
 
@@ -146,7 +146,7 @@ body {
 <div class="navbar">
 
     <div class="picture">
-          <a id=take-picture class="picture_class">
+          <a id=take-picture class="picture_class" style="margin-left: auto; margin-right: auto; width: 100%">
               <button id="take-picture-button" onclick="take_picture()">
                   <i style="background: blue; color: white;" class="fa fa-camera fa-2x" aria-hidden="true"></i>
               </button>
@@ -157,7 +157,7 @@ body {
 
 
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='index.js') }}" charset="utf-8"></script>
 <script type="text/javascript">
 // Take and save a photo, call picture function in main.py
