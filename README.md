@@ -8,6 +8,7 @@ The Pi streams the output of the camera module over the web via Flask server. De
 ```
 The original project uses OpenCV. My project uses picamera2.
 I modified the index.html and only get what I need.
+I added the gpsd-py3 module (from https://github.com/MartijnBraam/gpsd-py3) to get the gps location from the G-Mouse GPS module.
 
 ## Library dependencies
 Install the following dependencies to create camera stream.
@@ -18,6 +19,7 @@ sudo apt-get upgrade
 
 sudo pip3 install flask
 sudo pip3 install picamera2
+pip3 install gpsd-py3
 ```
 
 Since it uses picamera2, we don't need to enable legacy camera interface.
