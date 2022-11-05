@@ -19,7 +19,7 @@ sudo apt-get upgrade
 
 sudo pip3 install flask
 sudo pip3 install picamera2
-pip3 install gpsd-py3
+sudo pip3 install gpsd-py3
 ```
 
 Since it uses picamera2, we don't need to enable legacy camera interface.
