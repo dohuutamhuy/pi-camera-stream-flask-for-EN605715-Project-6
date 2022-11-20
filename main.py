@@ -4,7 +4,6 @@ from flask import Flask, render_template, Response, request, send_from_directory
 from camera import VideoCamera
 import os
 import gpsd
-import asyncio
 import serial
 import time
 
