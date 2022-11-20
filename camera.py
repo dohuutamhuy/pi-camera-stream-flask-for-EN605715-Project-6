@@ -4,6 +4,8 @@
 
 import time
 import io
+import base64
+from PIL import Image
 from libcamera import Transform
 from picamera2 import Picamera2
 from datetime import datetime
@@ -12,8 +14,7 @@ from datetime import datetime
 class VideoCamera(object):
     def __init__(self, flip = False, file_type  = ".jpg", photo_string= "stream_photo"):
         self.vs = Picamera2()
-        self.capture_config = self.vs.create_still_configuration()
-        controls = {"AeExposureMode": 1}
+        controls = {"AeExposureMode": 1, "NoiseReductionMode": 0}
         self.vs.configure(self.vs.create_preview_configuration({"size": (800, 600)}, controls=controls, transform=Transform(hflip=flip, vflip=True)))
         self.vs.start()
         self.file_type = file_type # image type i.e. .jpg
@@ -26,11 +27,12 @@ class VideoCamera(object):
     def get_frame(self):
         jpeg = io.BytesIO()
         try:
-                self.vs.capture_file(jpeg, format='jpeg')
+            self.vs.capture_file(jpeg, format='jpeg')
         except RuntimeError:
-                jpeg = self.previous_frame
+            jpeg = self.previous_frame
+            print("img error")
         self.previous_frame = jpeg
-        return jpeg.getbuffer()
+        return jpeg.getbuffer()                
 
     # Take a photo, called by camera button
     def take_picture(self):
