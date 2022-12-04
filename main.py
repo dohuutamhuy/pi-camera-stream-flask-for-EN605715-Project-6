@@ -4,6 +4,7 @@ from flask import Flask, render_template, Response, request, send_from_directory
 from camera import VideoCamera
 import os
 import gpsd
+import asyncio
 import serial
 import time
 
@@ -77,14 +78,28 @@ def gps_feed():
 def imu_gen():
     try:
         with serial.Serial('/dev/ttyUSB0', 115200) as ser:
-            while True:                
-                line = ser.readline().decode('utf-8').rstrip("\n")                
-                line = line.replace('\t', "&ensp;&ensp;")
-                if line != '':
-                    yield(line)                
+            is_bluetooth_connected = False
+            bluetooth_ser = None
+            while True:
+                if not is_bluetooth_connected:
+                    try:
+                        bluetooth_ser = serial.Serial('/dev/rfcomm0', 115200)
+                        is_bluetooth_connected = True
+                    except Exception as e:				
+                        pass 
+                line_byte = ser.readline()
+                line_string = line_byte.decode('utf-8').rstrip("\n")
+                line_string = line_string.replace('\t', "&ensp;&ensp;")
+                if line_string != '':
+                    if is_bluetooth_connected:
+                        try:
+                            bluetooth_ser.write(line_byte)
+                        except:
+                            is_bluetooth_connected = False
+                    yield(line_string)
     except Exception as e:
         print(e)
-        return f"Failed to retrieve data due to error: {e}".encode("UTF-8")    
+        return f"Failed to retrieve data due to error: {e}".encode("UTF-8")
 
 @app.route('/imu_feed')
 def imu_feed():
