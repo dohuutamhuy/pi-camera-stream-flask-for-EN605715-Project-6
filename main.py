@@ -7,6 +7,7 @@ import gpsd
 import asyncio
 import serial
 import time
+from smbus import SMBus
 
 
 pi_camera = VideoCamera(flip=True) # flip pi camera if upside down.
@@ -14,6 +15,10 @@ gpsd.connect()
 
 # App Globals (do not edit)
 app = Flask(__name__, static_folder='static')
+
+# Setup I2C connection
+addr = 0x8
+bus = SMBus(1)
 
 @app.route('/')
 def index():
@@ -77,29 +82,63 @@ def gps_feed():
 
 def imu_gen():
     try:
-        with serial.Serial('/dev/ttyUSB0', 115200) as ser:
+        IMUdata = bus.read_i2c_block_data(addr, 0)
+        arr = ""
+        for each in IMUdata:
+            if each == 255:
+                break
+            arr += chr(each)
+        if len(arr) > 2:
+            elements = arr.split(",")
+            line_string = f"Yaw: {elements[0]}\tPitch: {elements[1]}\tRoll: {elements[2]}"
+            line_byte = line_string.encode('ascii')
+            line_string = line_string.replace('\t', "&ensp;&ensp;")
             is_bluetooth_connected = False
             bluetooth_ser = None
-            while True:
-                if not is_bluetooth_connected:
-                    try:
-                        bluetooth_ser = serial.Serial('/dev/rfcomm0', 115200)
-                        is_bluetooth_connected = True
-                    except Exception as e:				
-                        pass 
-                line_byte = ser.readline()
-                line_string = line_byte.decode('utf-8').rstrip("\n")
-                line_string = line_string.replace('\t', "&ensp;&ensp;")
+            if not is_bluetooth_connected:
+                try:
+                    bluetooth_ser = serial.Serial('/dev/rfcomm0', 115200)
+                    is_bluetooth_connected = True
+                except Exception as e:				
+                    pass
                 if line_string != '':
                     if is_bluetooth_connected:
                         try:
                             bluetooth_ser.write(line_byte)
                         except:
                             is_bluetooth_connected = False
-                    yield(line_string)
+            return Response(line_string.encode('UTF-8'), mimetype='text/plain')
     except Exception as e:
         print(e)
-        return f"Failed to retrieve data due to error: {e}".encode("UTF-8")
+        return Response(f"Failed to retrieve data due to error: {e}".encode("UTF-8"), mimetype='text/plain')
+
+
+
+    ### Old way with bluetooth
+    # try:
+    #     with serial.Serial('/dev/ttyUSB0', 115200) as ser:
+    #         is_bluetooth_connected = False
+    #         bluetooth_ser = None
+    #         while True:
+    #             if not is_bluetooth_connected:
+    #                 try:
+    #                     bluetooth_ser = serial.Serial('/dev/rfcomm0', 115200)
+    #                     is_bluetooth_connected = True
+    #                 except Exception as e:				
+    #                     pass 
+    #             line_byte = ser.readline()
+    #             line_string = line_byte.decode('utf-8').rstrip("\n")
+    #             line_string = line_string.replace('\t', "&ensp;&ensp;")
+    #             if line_string != '':
+    #                 if is_bluetooth_connected:
+    #                     try:
+    #                         bluetooth_ser.write(line_byte)
+    #                     except:
+    #                         is_bluetooth_connected = False
+    #                 yield(line_string)
+    # except Exception as e:
+    #     print(e)
+    #     return f"Failed to retrieve data due to error: {e}".encode("UTF-8")
 
 @app.route('/imu_feed')
 def imu_feed():
