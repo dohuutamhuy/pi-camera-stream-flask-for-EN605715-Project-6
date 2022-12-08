@@ -107,10 +107,10 @@ def imu_gen():
                             bluetooth_ser.write(line_byte)
                         except:
                             is_bluetooth_connected = False
-            return Response(line_string.encode('UTF-8'), mimetype='text/plain')
+            return line_string.encode('UTF-8')
     except Exception as e:
-        print(e)
-        return Response(f"Failed to retrieve data due to error: {e}".encode("UTF-8"), mimetype='text/plain')
+        print(f"Failed to retrieve data due to error: {e}")
+        return f"Failed to retrieve data due to error: {e}".encode("UTF-8")
 
 
 
