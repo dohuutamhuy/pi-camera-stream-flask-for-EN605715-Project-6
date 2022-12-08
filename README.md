@@ -20,6 +20,7 @@ sudo apt-get upgrade
 sudo pip3 install flask
 sudo pip3 install picamera2
 sudo pip3 install gpsd-py3
+sudo pip3 install smbus
 ```
 
 Since it uses picamera2, we don't need to enable legacy camera interface.
